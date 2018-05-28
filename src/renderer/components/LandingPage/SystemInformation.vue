@@ -32,9 +32,27 @@
 
 <script>
   import fs from 'fs'
+  import SerialPort from 'serialport'
+  import VirtualSerialPort from  'virtual-serialport'
   export default {
     created () {
-      console.log(fs)
+      let SP = process.env.NODE_ENV === 'DEV' ? VirtualSerialPort : SerialPort
+      var sp = new SP('/dev/ttyS0', { baudrate: 57600 })
+
+      sp.on("data", function(data) {
+        console.log("Message from device: ", data)
+      })
+
+      sp.on('open', function (err) {
+        sp.on("dataToDevice", function(data) {
+          sp.writeToComputer(`****** ${data} *******`)
+          console.log('data writtent to device : ', data)          
+        })
+        sp.write('The Quick Brown Fox')
+        sp.drain(function (err) {
+          // console.log('Drain error : ', err)
+        })
+      })
     },
     data () {
       return {

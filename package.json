@@ -14,15 +14,17 @@
     "build:win32": "cross-env BUILD_TARGET=win32 node .electron-vue/build.js",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
-    "dev": "node .electron-vue/dev-runner.js",
+    "dev": "NODE_ENV=DEV node .electron-vue/dev-runner.js",
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": ""
   },
   "dependencies": {
-    "vue": "^2.3.3",
     "axios": "^0.16.1",
+    "serialport": "^6.2.0",
+    "virtual-serialport": "^4.0.1",
+    "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vue-router": "^2.5.3",
     "vuex": "^2.3.1"
