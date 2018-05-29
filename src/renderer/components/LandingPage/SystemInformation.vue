@@ -1,67 +1,66 @@
 <template>
   <div>
-    <div class="title">Information</div>
-    <div class="items">
-      <div class="item">
-        <div class="name">Path:</div>
-        <div class="value">{{ path }}</div>
+    <form>
+      <div>
+        <label for="message">Message to device</label><br>
+        <input type="text" v-model="messageToDevice">
+        <input type="submit" value="submit message" @click="writeToDevice">
       </div>
-      <div class="item">
-        <div class="name">Route Name:</div>
-        <div class="value">{{ name }}</div>
-      </div>
-      <div class="item">
-        <div class="name">Vue.js:</div>
-        <div class="value">{{ vue }}</div>
-      </div>
-      <div class="item">
-        <div class="name">Electron:</div>
-        <div class="value">{{ electron }}</div>
-      </div>
-      <div class="item">
-        <div class="name">Node:</div>
-        <div class="value">{{ node }}</div>
-      </div>
-      <div class="item">
-        <div class="name">Platform:</div>
-        <div class="value">{{ platform }}</div>
-      </div>
+    </form>
+    <br>
+    <div>
+      <h1>Message from device</h1>
+      <p v-if="messageFromDevice"><b>{{messageFromDevice}}</b></p>
+      <p v-else>----</p>
     </div>
+
   </div>
 </template>
 
-<script>
-  import fs from 'fs'
+<script>  
   import SerialPort from 'serialport'
   import VirtualSerialPort from  'virtual-serialport'
+  import { setTimeout } from 'timers';
   export default {
     created () {
       let SP = process.env.NODE_ENV === 'DEV' ? VirtualSerialPort : SerialPort
-      var sp = new SP('/dev/ttyS0', { baudrate: 57600 })
+      this.sp = new SP('/dev/ttyS0', { baudrate: 57600 })
+      let vm = this
 
-      sp.on("data", function(data) {
-        console.log("Message from device: ", data)
+      this.sp.on('open', function (err) {        
       })
 
-      sp.on('open', function (err) {
-        sp.on("dataToDevice", function(data) {
-          sp.writeToComputer(`****** ${data} *******`)
-          console.log('data writtent to device : ', data)          
+      if (process.env.NODE_ENV === 'DEV') {
+        this.sp.on("dataToDevice", function(data) {
+          vm.sp.writeToComputer(`****** ${data} *******`)
         })
-        sp.write('The Quick Brown Fox')
-        sp.drain(function (err) {
-          // console.log('Drain error : ', err)
-        })
+      }
+      
+      this.sp.on("data", function(data) {
+        setTimeout(() => {
+          vm.messageFromDevice = data          
+        }, 1000);
       })
     },
     data () {
       return {
-        electron: process.versions['atom-shell'],
-        name: this.$route.name,
-        node: process.versions.node,
-        path: this.$route.path,
-        platform: require('os').platform(),
-        vue: require('vue/package.json').version
+        messageToDevice: null,
+        messageFromDevice: null,
+        sp: null
+      }
+    },
+    watch: {
+      messageFromDevice: function (newVal, oldVal) {
+        setTimeout(() => {
+          this.messageFromDevice = null
+        }, 2000);
+      }
+    },
+    methods: {
+      writeToDevice () {
+        this.sp.write(this.messageToDevice)
+        this.sp.drain(function (err) {})
+        this.messageToDevice = null
       }
     }
   }
