@@ -16,7 +16,7 @@
 import lockers from '../../api/lockers'
 import { openBox, queryBox } from '../../api/index.js'
 
-export default {    
+export default {
     data () {
         return {
             lockers: lockers
