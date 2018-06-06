@@ -1,8 +1,10 @@
 <template>
     <div>
+        <button @click="queryBox">Query Locker Status</button>
         <ul>
             <li v-for="locker in lockers" :key="locker.id">
                 <div>{{ locker.id }}</div>
+                <div v-if="locker.status">{{ locker.status }}</div>
                 <div><button @click="openBox(locker)">open</button></div>
             </li>
         </ul>
@@ -29,7 +31,10 @@ export default {
             })
         },
         queryBox () {
-
+            const vm = this
+            queryBox(function(err, result) {
+                vm.lockers = result
+            })
         }
     }
 }

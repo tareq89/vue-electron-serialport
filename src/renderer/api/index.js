@@ -2,7 +2,7 @@ require('dotenv').config()
 import SerialPort from 'serialport'
 import VirtualSerialPort from 'virtual-serialport'
 import { 
-    executeRespectiveCallback, 
+    executeRespectiveCallback,
     responseMessageToComputer
 } from './utils'
 
