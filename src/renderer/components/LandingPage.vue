@@ -1,15 +1,18 @@
 <template>
   <div id="wrapper">
-    <system-information></system-information>     
+    <!-- <system-information></system-information> -->
+    <locker-list></locker-list>
+    abcd
   </div>
 </template>
 
 <script>
   import SystemInformation from './LandingPage/SystemInformation'
+  import LockerList from './LockerList/LockerList'
 
   export default {
     name: 'landing-page',
-    components: { SystemInformation }
+    components: { SystemInformation, LockerList }
   }
 </script>
 
