@@ -2,41 +2,50 @@ import _ from 'lodash'
 import lockers from '../api/lockers'
 
 export function responseMessageToComputer (data) {
-    let prefix = data[0]
-
-    switch (prefix) {
-        case 'o':
-            let actualData = data.substr(1).trim()
-            let locker = _.find(lockers, (locker) => {
-                return locker.command === actualData
-            })
-            return `${prefix}${locker.response}`
-        case 'q':
-            let result = queryResult()
-            return `q${result}`
-            break            
+    if (data.includes('OPEN')) {
+        return `${data}`
+    } else if (data.includes('deligram')) {
+        let result = convertIntToBinary(Math.random().toString().substr(2))
+        return `deligram${result}`
     }
 }
 
 export function executeRespectiveCallback (data, callbackMap) {
-    switch (getLockerResponsePrefix(data)) {
-        case 'o':
-            callbackMap.openBox(null, data)
-            break
-        case 'q':
-            data = data.substr(1)
-            let result = mapQueryResult(data)
-            callbackMap.queryBox(null, result)
-            break
+    let result
+    if (data.includes('OPEN')) {
+        data = data.replace('OPEN', '')
+        data = data.match(/\d+/)[0]
+        result = mapOpenResult(data)
+        callbackMap.openBox(null, result)
+    } else if (data.includes('deligram')) {
+        data = data.replace('deligram', '')
+        result = mapQueryResult(data)
+        callbackMap.queryBox(null, result)
     }
+}
+
+export const convertSelectedLockersToCommand = function (selectedLockers) {
+    let command = 0
+    for (let lockerId of selectedLockers) {
+        command = command | 1 << (lockerId - 1)
+    }
+    return command
 }
 
 const getLockerResponsePrefix = function (data) {
     return data[0]
 }
 
-const queryResult = function (data) {    
-    return parseInt(Math.random().toString().substr(2)).toString(2).substr(1,26)
+const mapOpenResult = function (openResult) {
+    let openedLockers = convertIntToBinary(openResult).split('').reverse()
+    let result = []
+    for (let index in openedLockers) {
+        if (openedLockers[index] === '1') {
+            let lockerId = parseInt(index) + 1
+            result.push(lockerId)
+        }
+    }
+    return result
 }
 
 const mapQueryResult = function (queryResult) {
@@ -50,4 +59,8 @@ const mapQueryResult = function (queryResult) {
         }
     }
     return _lockers
+}
+
+const convertIntToBinary = function (data) {
+    return parseInt(data).toString(2)
 }

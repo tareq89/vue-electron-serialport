@@ -2,7 +2,6 @@
   <div id="wrapper">
     <!-- <system-information></system-information> -->
     <locker-list></locker-list>
-    abcd
   </div>
 </template>
 

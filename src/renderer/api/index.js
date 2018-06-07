@@ -3,7 +3,8 @@ import SerialPort from 'serialport'
 import VirtualSerialPort from 'virtual-serialport'
 import { 
     executeRespectiveCallback,
-    responseMessageToComputer
+    responseMessageToComputer,
+    convertSelectedLockersToCommand
 } from './utils'
 
 let lockerSerialPort = null
@@ -19,19 +20,20 @@ lockerSerialPort.on('data', function (data) {
 
 if (process.env.NODE_ENV === 'DEV') {
     lockerSerialPort.on("dataToDevice", function(data) {
-        data = responseMessageToComputer(data)
-        lockerSerialPort.writeToComputer(`${data}`)
+        let result = responseMessageToComputer(data)
+        lockerSerialPort.writeToComputer(`${result}`)
     })
 }
 
-export function openBox (boxid, callback) {
-    let messageToDevice = process.env.NODE_ENV === 'DEV'? `o${boxid}\n` : `${boxid}\n`
-    lockerSerialPort.write(messageToDevice)
+export function openBox (selectedLockers, callback) {
     callbackMap.openBox = callback
+    let command = convertSelectedLockersToCommand(selectedLockers)
+    let messageToDevice = `OPEN${command}\n`
+    lockerSerialPort.write(messageToDevice)
 }
 
 export function queryBox (callback) {
-    let messageToDevice = process.env.NODE_ENV === 'DEV'? `qdeligram?\n` : `deligram?\n`
+    let messageToDevice = `deligram?\n`
     lockerSerialPort.write(messageToDevice)
     callbackMap.queryBox = callback
 }
